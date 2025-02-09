@@ -2,6 +2,7 @@ package com.flipkart.e_commerce.repository;
 
 import com.flipkart.e_commerce.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,8 +19,9 @@ public interface UserRepository extends JpaRepository<User,Integer> {
     @Query(value = "Select * from users where username : username",nativeQuery = true)
     User findUserByUsername(@Param("username") String username);
 
-//    @Query("create table department")
-//    createEntity
+    @Modifying
+    @Query("delete from User u where u.id =:id")
+    int deleteUserById(@Param("id") Integer id);
 
 
 

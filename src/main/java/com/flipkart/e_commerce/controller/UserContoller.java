@@ -3,6 +3,7 @@ package com.flipkart.e_commerce.controller;
 import com.flipkart.e_commerce.exception.UserNotFoundException;
 import com.flipkart.e_commerce.model.User;
 import com.flipkart.e_commerce.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,35 @@ import java.util.Optional;
 public class UserContoller {
     @Autowired
     UserRepository userRepository;
+
+    @PostMapping("/add")
+    public String registerUser(@RequestBody User userDetail){
+        userRepository.save((userDetail));
+        return "User has been added";
+    }
+
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable Integer id,@RequestBody User updateUser){
+        return userRepository.findById(id).map(user -> {
+            user.setEmail(updateUser.getEmail());
+            user.setPassword(updateUser.getPassword());
+            user.setPhoneNo(updateUser.getPhoneNo());
+            return userRepository.save(user);
+        }).orElseThrow(()-> new RuntimeException("User not found with id "+id));
+    }
+
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public String deleteUser(@PathVariable Integer id){
+        int deletedCount = userRepository.deleteUserById(id);
+        if(deletedCount > 0){
+            return "user with id "+id+" has been deleted";
+        }
+        else{
+            return "user with id "+id +" doesn't exists";
+        }
+    }
 
     @GetMapping("/all")
     public List<User> getAllUsers(){
@@ -43,11 +73,7 @@ public class UserContoller {
         return null;
     }
 
-    @PostMapping("/add")
-    public String registerUser(@RequestBody User userDetail){
-        userRepository.save((userDetail));
-        return "User has been added";
-    }
+
 
     @GetMapping("/phone_no")
     public User getUserbyPhoneNo(@PathVariable long phone_no){
@@ -61,8 +87,4 @@ public class UserContoller {
         return user;
     }
 
-//    @PutMapping ("/update")
-//    public String UpdateUser(@RequestBody User userdetail){
-//
-//    }
 }
